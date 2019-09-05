@@ -1,0 +1,52 @@
+{% block content %}
+
+<form action='' id='urls_form'>
+    <p>Urls processing:</p>
+    <p><textarea rows='10' cols='100' id='urls_processing'></textarea></p>
+    <p>Site info:</p>
+    <p><textarea rows='20' cols='100' id='site_info'></textarea></p>
+</form>
+
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+
+<script>
+
+console.log(window.location)
+    var socket_url = 'ws://' + window.location.host + window.location.pathname
+    var socket = new WebSocket(socket_url)
+
+    socket.onmessage = function(event){
+        data = JSON.parse(event.data)
+
+        if (data['urls_processing_text'] !== undefined)
+        {
+            var today = new Date()
+            var curDay = String(today.getDate()).padStart(2, '0')
+            var curMonth = String(today.getMonth() + 1).padStart(2, '0')
+            var curYear = today.getFullYear()
+            var curHour = String(today.getHours()).padStart(2, '0')
+            var curMinute = String(today.getMinutes()).padStart(2, '0')
+            var curSecond = String(today.getSeconds()).padStart(2, '0')
+
+            today = curDay + '.' + curMonth + '.' + curYear + ' ' + curHour + ':' + curMinute + ':' + curSecond + ': '
+
+            $('#urls_processing').val(today + data['urls_processing_text'] + '\n' + $('#urls_processing').val())
+        }
+
+        if (data['site_info_text'] !== undefined)
+        {
+            $('#site_info').val(data['site_info_text'] + '\n' + $('#site_info').val())
+        }
+    }
+
+    socket.onopen = function(event){
+        console.log('socket opened', event)
+    }
+
+    socket.onclose = function(event){
+        console.log('socket closed', event)
+    }
+
+</script>
+
+{% endblock content %}
